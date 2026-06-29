@@ -227,6 +227,20 @@ function installHook(){
 }
 setInterval(installHook, 300);
 
+// İlerleme kayıtlıysa (ada geçişi sonrası reload) intro'yu otomatik atla — ilk ziyarette intro kalır.
+var introDone=false;
+function autoSkipIntro(){
+  if(introDone) return;
+  try{
+    if(localStorage.getItem('demoUp')===null){ introDone=true; return; } // ilk ziyaret
+    if(window.exportRoot){
+      if(exportRoot.currentLabel && exportRoot.currentLabel!=="intro"){ introDone=true; return; }
+      if(exportRoot.SkipIntroBtn){ exportRoot.SkipIntroBtn.dispatchEvent("click"); }
+    }
+  }catch(e){}
+}
+setInterval(autoSkipIntro, 200);
+
 function refreshDev(){
   if(window.exportRoot){
     document.getElementById("upTxt").textContent=exportRoot.UpLevel;
