@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="authoring-tool" content="Adobe_Animate_CC">
+<title>Dimes Hazine Adası — Mini-Oyun Geçiş Kapısı (Demo)</title>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+<script src="./DimesHazineAdasi.js"></script>
+<link rel="stylesheet" href="./DimesHazineAdasi.css" />
+
+<style>
+  html,body{margin:0;background:#23bfef;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+  /* ===== KAPI / OYUN OVERLAY ===== */
+  .ov{position:fixed;inset:0;background:rgba(6,9,24,.82);backdrop-filter:blur(6px);
+      display:none;align-items:center;justify-content:center;z-index:9000;padding:16px}
+  .ov.show{display:flex}
+  .md{width:100%;max-width:560px;background:linear-gradient(180deg,#1c2550,#161e44);
+      border:1px solid #2c3873;border-radius:20px;padding:26px;color:#eaf0ff;animation:pop .25s ease}
+  .md.wide{max-width:1010px;padding:0;overflow:hidden}
+  @keyframes pop{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+  .md h3{margin:0 0 6px;font-size:20px}.md p.sub{color:#9aa6d6;font-size:14px;margin:0 0 18px}
+  .choice{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:520px){.choice{grid-template-columns:1fr}}
+  .opt{border:1px solid #2c3873;border-radius:16px;padding:18px;text-align:center;cursor:pointer;
+       transition:.18s;background:#232e63}
+  .opt:hover{transform:translateY(-3px)}
+  .opt.g:hover{border-color:#4f8cff;box-shadow:0 0 0 1px #4f8cff}
+  .opt.t:hover{border-color:#ffd34d;box-shadow:0 0 0 1px #ffd34d}
+  .opt .big{font-size:40px;margin-bottom:8px}.opt h4{margin:0 0 6px;font-size:16px}
+  .opt small{color:#9aa6d6;font-size:12px;line-height:1.4;display:block}
+  .btn{border:none;border-radius:11px;padding:11px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+  .btn:active{transform:translateY(1px)}
+  .bp{background:linear-gradient(135deg,#4f8cff,#7a5cff);color:#fff}
+  .bg2{background:transparent;color:#eaf0ff;border:1px solid #2c3873}
+  .bgold{background:linear-gradient(135deg,#ffd34d,#ff9f43);color:#3a2600}
+  .bok{background:linear-gradient(135deg,#36d399,#1f9d6b);color:#04241a}
+  .mhead{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;
+         border-bottom:1px solid #2c3873;background:#161e44;color:#eaf0ff}
+  .mhead .mt{font-weight:700;display:flex;gap:9px;align-items:center}
+  .target{font-size:12px;color:#ffd34d;border:1px solid #2c3873;padding:4px 10px;border-radius:20px}
+  .x{cursor:pointer;font-size:20px;color:#9aa6d6;background:none;border:none}
+  iframe.game{width:100%;height:72vh;border:none;display:block;background:#0a0e22}
+  .result{text-align:center}.result .rico{font-size:60px}.result h3{font-size:24px;margin:6px 0 4px}
+  .rstat{display:inline-flex;gap:8px;align-items:center;margin:10px 0;background:#232e63;
+         border:1px solid #2c3873;border-radius:30px;padding:8px 16px;font-size:13px;color:#eaf0ff}
+  .rbtns{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+  .checklist{display:flex;flex-direction:column;gap:10px;margin:6px 0 18px}
+  .citem{display:flex;align-items:center;gap:12px;border:1px solid #2c3873;border-radius:12px;
+         padding:12px 14px;background:#232e63;cursor:pointer}
+  .citem.ck{border-color:#36d399;background:rgba(54,211,153,.1)}
+  .cbox{width:24px;height:24px;border-radius:7px;border:2px solid #2c3873;display:flex;
+        align-items:center;justify-content:center;font-size:14px}
+  .citem.ck .cbox{background:#36d399;border-color:#36d399;color:#04241a}
+  .ctxt{flex:1;font-size:14px}.ctxt small{display:block;color:#9aa6d6;font-size:11px}
+  /* ===== DEMO paneli ===== */
+  .dev{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);z-index:8000;display:flex;
+       flex-direction:column;gap:8px;align-items:center;background:rgba(20,26,60,.96);border:1px solid #2c3873;
+       border-radius:18px;padding:10px 16px;font-size:12px;color:#eaf0ff;box-shadow:0 12px 40px -12px #000;max-width:96vw}
+  .dev .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}
+  .dev b{color:#ffd34d}.dev .lbl{color:#9aa6d6}
+  .dev button{font-size:12px;padding:6px 12px;border-radius:9px;border:1px solid #2c3873;
+       background:#232e63;color:#eaf0ff;cursor:pointer;font-weight:700}
+  .dev button:hover{border-color:#4f8cff}
+  .dev .chip{background:#1c2550}
+  .dev .up{background:#0e1430;padding:4px 10px;border-radius:8px}
+  .dev .walk{background:linear-gradient(135deg,#4f8cff,#7a5cff);border:none;color:#fff}
+  .confetti{position:fixed;inset:0;pointer-events:none;z-index:9500;overflow:hidden}
+  .confetti i{position:absolute;top:-10px;width:9px;height:14px;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(105vh) rotate(540deg)}}
+</style>
+</head>
+<body style="margin:0px;">
+
+<!-- ===== ANIMATE CANVAS ===== -->
+<div id="animation_container" style="background:#23bfef; width:1200px; height:675px; margin:0 auto">
+  <canvas id="canvas" width="1200" height="675" style="position:absolute; display:none; background:#23bfef;"></canvas>
+  <div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:1200px; height:675px; position:absolute; left:0px; top:0px; display:none;"></div>
+</div>
+<div id="_preload_div_" style="position:absolute; top:0; left:0; display:inline-block; height:675px; width:1200px; text-align:center;">
+  <span style="display:inline-block; height:100%; vertical-align:middle;"></span>
+  <span style="vertical-align:middle; color:#fff; font-size:20px;">Yükleniyor…</span>
+</div>
+
+<!-- ===== KAPI overlay ===== -->
+<div class="ov" id="gateOv"><div class="md" id="gateMd"></div></div>
+<!-- ===== OYUN overlay ===== -->
+<div class="ov" id="gameOv">
+  <div class="md wide">
+    <div class="mhead">
+      <div class="mt"><span id="gIcon">🎮</span> <span id="gTitle">Oyun</span></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="target" id="gTarget">Hedef</span>
+        <button class="x" onclick="closeGame()">✕</button>
+      </div>
+    </div>
+    <iframe class="game" id="gFrame" title="oyun"></iframe>
+  </div>
+</div>
+<!-- ===== SONUÇ overlay ===== -->
+<div class="ov" id="resOv"><div class="md" id="resMd"></div></div>
+<div class="confetti" id="confetti"></div>
+
+<!-- ===== DEMO paneli ===== -->
+<div class="dev">
+  <div class="row">
+    <span class="lbl">🎮 Bir oyunu hemen dene:</span>
+    <button class="chip" onclick="tryGame(0)">📦 Paketleme</button>
+    <button class="chip" onclick="tryGame(1)">🍓 Meyve</button>
+    <button class="chip" onclick="tryGame(2)">🔍 Kalite</button>
+    <button class="chip" onclick="tryGame(3)">🔧 Boru Hattı</button>
+    <button class="chip" onclick="tryGame(4)">🎡 Bilgi Çarkı</button>
+  </div>
+  <div class="row">
+    <span class="up">UpLevel: <span id="upTxt">?</span> · Ada <span id="islTxt">?</span></span>
+    <span class="lbl">Gerçek akış:</span>
+    <button class="walk" onclick="testNextTask()">✓ Sıradaki görevi tamamla</button>
+    <button onclick="forceGate()">🚪 Kapıyı aç</button>
+    <button onclick="resetDemo()">↺ Başa dön</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   1) SAHTE AJAX / VERİ  — canvas bunları çağırıyor, server yok.
+   ========================================================================= */
+var AV = "data:image/svg+xml;base64," + btoa(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="120" height="120" rx="60" fill="#ff9f6b"/><text x="60" y="74" font-size="46" text-anchor="middle" fill="#1a1030" font-family="Arial">AY</text></svg>');
+
+// p[1].Login==1 olan = giriş yapan kullanıcı. UpLevel oyun-içi ilerleme.
+var MOCK = [
+  { Login:0, Order:1, Name:"Zeynep K.",  Gender:2, Image:AV, Language:"tr", UpLevel:22, TotalPoint:22, Level:4, TaskNo:4, IslandName:"Narince",  BadgeNumber:3, BadgeName:"Hız:Dikkat:Takım", IsVideo:1, Date:"2026-06-29", Sales:{TotalSale:0} },
+  { Login:1, Order:2, Name:"Ahmet Yılmaz", Gender:1, Image:AV, Language:"tr", UpLevel:5, TotalPoint:5, Level:1, TaskNo:5, IslandName:"Milkshake", BadgeNumber:1, BadgeName:"Başlangıç", IsVideo:1, Date:"2026-06-29", Sales:{TotalSale:0} },
+  { Login:0, Order:3, Name:"Mert D.",     Gender:1, Image:AV, Language:"tr", UpLevel:14, TotalPoint:14, Level:3, TaskNo:2, IslandName:"Cool Lime", BadgeNumber:2, BadgeName:"Hız:Dikkat", IsVideo:1, Date:"2026-06-29", Sales:{TotalSale:0} },
+  { Login:0, Order:4, Name:"Elif S.",     Gender:2, Image:AV, Language:"tr", UpLevel:9,  TotalPoint:9,  Level:2, TaskNo:3, IslandName:"Smothie",   BadgeNumber:1, BadgeName:"Başlangıç", IsVideo:1, Date:"2026-06-29", Sales:{TotalSale:0} }
+];
+// Animate JS bunu çağırır: GamerInformation = GetGameInformation();
+function GetGameInformation(){ return MOCK; }
+// Diğer view fonksiyonları — canvas çağırınca hata vermesin diye stub:
+function GetUpdateUpLevel(){ /* server'a yazardı; prototipte no-op */ console.log("[mock] GetUpdateUpLevel (UpLevel kaydı atlandı)"); }
+function GetRecordVideoMember(){ /* idempotent video kaydı; no-op */ }
+function showImageModal(){ alert("(Prototip) Görev adımları görseli"); }
+function FillPointModolTable(){ alert("(Prototip) Puan tablosu — canlıda DataTable açılır"); }
+function GetMemberTrancactionTable(){ alert("(Prototip) İş tamamlama adımları"); }
+function GetBadgeNamesTable(){ alert("(Prototip) Rozet kazanma görevleri"); }
+
+/* =========================================================================
+   2) CANVAS BOOTSTRAP (DimesGame.cshtml'den birebir, yollar yerel)
+   ========================================================================= */
+var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
+function init(){
+  canvas = document.getElementById("canvas");
+  anim_container = document.getElementById("animation_container");
+  dom_overlay_container = document.getElementById("dom_overlay_container");
+  var comp = AdobeAn.getComposition("4EC7A86CD9BB6040B532DEA1E910490C");
+  var lib = comp.getLibrary();
+  var loader = new createjs.LoadQueue(false);
+  loader.addEventListener("fileload", function(evt){ handleFileLoad(evt, comp); });
+  loader.addEventListener("complete", function(evt){ handleComplete(evt, comp); });
+  loader.loadManifest(lib.properties.manifest);
+}
+function handleFileLoad(evt, comp){
+  var images = comp.getImages();
+  if(evt && (evt.item.type=="image")){ images[evt.item.id]=evt.result; }
+}
+function handleComplete(evt, comp){
+  var lib=comp.getLibrary(); var ss=comp.getSpriteSheet(); var queue=evt.target;
+  var ssMetadata=lib.ssMetadata;
+  for(var i=0;i<ssMetadata.length;i++){
+    ss[ssMetadata[i].name]=new createjs.SpriteSheet({"images":[queue.getResult(ssMetadata[i].name)],"frames":ssMetadata[i].frames});
+  }
+  document.getElementById("_preload_div_").style.display='none';
+  dom_overlay_container.style.display=canvas.style.display='block';
+  exportRoot=new lib.DimesHazineAdasi();
+  stage=new lib.Stage(canvas);
+  stage.enableMouseOver();
+  fnStartAnimation=function(){
+    stage.addChild(exportRoot);
+    createjs.Ticker.framerate=lib.properties.fps;
+    createjs.Ticker.addEventListener("tick", stage);
+  };
+  AdobeAn.makeResponsive(true,'both',true,1,[canvas,document.getElementById("_preload_div_"),anim_container,dom_overlay_container]);
+  AdobeAn.compositionLoaded(lib.properties.id);
+  fnStartAnimation();
+  window.__gameReady=true;
+}
+
+/* =========================================================================
+   3) KAPI ENTEGRASYONU — LmsUpdateUpLevel(6) anını yakala
+   ========================================================================= */
+var ISLANDS = [
+  { ada:"Milkshake", game:"oyunlar/paketleme-tetrisi.html", gameAd:"Paketleme Tetrisi", icon:"📦", hedef:"3. seviyeye ulaş" },
+  { ada:"Smothie",   game:"oyunlar/meyve-eslestirme.html",  gameAd:"Meyve Eşleştirme",  icon:"🍓", hedef:"Tüm çiftleri eşleştir" },
+  { ada:"Cool Lime", game:"oyunlar/kalite-kontrol.html",    gameAd:"Kalite Kontrol",    icon:"🔍", hedef:"En az %60 doğruluk" },
+  { ada:"Narince",   game:"oyunlar/boru-hatti.html",        gameAd:"Boru Hattı",        icon:"🔧", hedef:"En az 2. seviye" },
+  { ada:"Obsesso",   game:"oyunlar/Bilgi-carki.html",       gameAd:"Bilgi Çarkı",       icon:"🎡", hedef:"En az %50 doğru" }
+];
+function curIsland(){ return Math.max(0, Math.min(4, Math.floor((exportRoot ? exportRoot.UpLevel : 0)/6))); }
+
+var pendingPass=null; // kapı geçilince çağrılacak gerçek ilerletme
+function installHook(){
+  if(window.exportRoot && typeof exportRoot.LmsUpdateUpLevel==="function" && !exportRoot.__gateWrapped){
+    exportRoot.__gateWrapped=true;
+    var real=exportRoot.LmsUpdateUpLevel.bind(exportRoot);
+    exportRoot.LmsUpdateUpLevel=function(IslandSubLevel){
+      // 6. görev = ada geçişi → kapı. Bypass'ta gerçek ilerletmeyi çalıştır.
+      if(IslandSubLevel===6 && exportRoot.UpLevel<30 && !window.__bypass){
+        openGate(curIsland(), function(){ window.__bypass=true; real(IslandSubLevel); window.__bypass=false; refreshDev(); });
+      } else {
+        real(IslandSubLevel); refreshDev();
+      }
+    };
+    console.log("[GATE] LmsUpdateUpLevel sarıldı ✓");
+  }
+  refreshDev();
+}
+setInterval(installHook, 300);
+
+function refreshDev(){
+  if(window.exportRoot){
+    document.getElementById("upTxt").textContent=exportRoot.UpLevel;
+    document.getElementById("islTxt").textContent=(curIsland()+1)+" ("+ISLANDS[curIsland()].ada+")";
+  }
+}
+
+/* ---- KAPI ekranı ---- */
+function openGate(idx, onPass){
+  tryMode=false; pendingPass=onPass;
+  var isl=ISLANDS[idx];
+  var nx = idx<4 ? ISLANDS[idx+1].ada : "Bitiş 🏁";
+  document.getElementById("gateMd").innerHTML=
+    '<h3>🚪 '+isl.ada+' Adası — Geçiş Kapısı</h3>'+
+    '<p class="sub">Bir sonraki adaya (<b>'+nx+'</b>) geçmek için bir yol seç:</p>'+
+    '<div class="choice">'+
+      '<div class="opt g" onclick="startGame('+idx+')"><div class="big">🎮</div><h4>Oyun oyna</h4>'+
+        '<small>'+isl.gameAd+'<br><b style="color:#ffd34d">'+isl.hedef+'</b><br>Başarısız olursan geçemezsin.</small></div>'+
+      '<div class="opt t" onclick="openTasks('+idx+')"><div class="big">✅</div><h4>Görevleri tamamla</h4>'+
+        '<small>İş tamamlama, başarı rozeti ve geri bildirim ile geç.</small></div>'+
+    '</div>'+
+    '<div style="text-align:center;margin-top:16px"><button class="btn bg2" onclick="closeGate()">Vazgeç</button></div>';
+  show("gateOv");
+}
+function closeGate(){ hide("gateOv"); pendingPass=null; }
+
+/* ---- Görevle geç ---- */
+var GATE_TASKS=[
+  {ic:"📋",ad:"İş tamamlama formu",sub:"Adaya ait görev raporunu doldur"},
+  {ic:"🏅",ad:"Başarı rozetini al",sub:"Konu değerlendirmesini geç"},
+  {ic:"✍️",ad:"Geri bildirim ver",sub:"Kısa anketi yanıtla"}
+];
+var gateChk=[false,false,false], gateIdx=0;
+function openTasks(idx){ gateIdx=idx; gateChk=[false,false,false]; renderTasks(); show("gateOv"); }
+function renderTasks(){
+  var all=gateChk.every(Boolean);
+  document.getElementById("gateMd").innerHTML=
+    '<h3>✅ Görevlerle geç</h3><p class="sub">Bu görevleri tamamlayınca bir sonraki ada açılır. '+
+    '<i>(Canlıda bunlar oyunun "İş Tamamlama Adımları" ve "Rozet Kazanma Görevleri" modal\'larına bağlanır.)</i></p>'+
+    '<div class="checklist">'+GATE_TASKS.map(function(g,i){
+      return '<div class="citem '+(gateChk[i]?"ck":"")+'" onclick="tglTask('+i+')"><div class="cbox">'+(gateChk[i]?"✔":"")+
+             '</div><div class="ctxt">'+g.ad+'<small>'+g.sub+'</small></div><div style="font-size:20px">'+g.ic+'</div></div>';
+    }).join("")+'</div>'+
+    '<div style="display:flex;gap:10px;justify-content:flex-end">'+
+      '<button class="btn bg2" onclick="openGate('+gateIdx+',pendingPass)">‹ Geri</button>'+
+      '<button class="btn bok" '+(all?"":"disabled")+' onclick="passGate(\'gorev\')">Adayı tamamla →</button></div>';
+}
+function tglTask(i){ gateChk[i]=!gateChk[i]; renderTasks(); }
+
+/* ---- Oyun ---- */
+function startGame(idx){
+  var isl=ISLANDS[idx];
+  hide("gateOv");
+  document.getElementById("gTitle").textContent=isl.gameAd;
+  document.getElementById("gIcon").textContent=isl.icon;
+  document.getElementById("gTarget").textContent="🎯 "+isl.hedef;
+  document.getElementById("gFrame").src=isl.game+"?t="+(+new Date());
+  show("gameOv");
+}
+function closeGame(){ hide("gameOv"); document.getElementById("gFrame").src="about:blank"; }
+function replayGame(){ hide("resOv"); startGame(curIsland()); }
+
+var resLock=false;
+window.addEventListener("message",function(ev){
+  var d=ev.data||{};
+  if(d.kaynak==="adaOyunu" && d.tip==="oyunSonucu"){
+    if(resLock) return; resLock=true; setTimeout(function(){resLock=false;},800);
+    setTimeout(function(){
+      hide("gameOv"); document.getElementById("gFrame").src="about:blank";
+      if(tryMode){ showTryResult(d.basarili, d.detay); }
+      else if(d.basarili){ passGate("oyun", d.detay); }
+      else { showFail(d.detay); }
+    },1000);
+  }
+});
+/* ---- Oyunu serbest dene (kapı/ilerleme yok) ---- */
+var tryMode=false, tryIdx=0;
+function tryGame(idx){ tryMode=true; tryIdx=idx; startGame(idx); }
+function showTryResult(ok, detay){
+  var isl=ISLANDS[tryIdx];
+  var stat=detay&&detay.olcut?'<div class="rstat">'+detay.olcut+': <b>'+detay.deger+(detay.birim||'')+'</b> · Hedef: '+isl.hedef+'</div>':'';
+  document.getElementById("resMd").innerHTML=
+    '<div class="result"><div class="rico">'+(ok?'✅':'😕')+'</div>'+
+    '<h3>'+(ok?'Geçtin! ('+isl.gameAd+')':'Bu sefer olmadı')+'</h3>'+
+    '<p class="sub">'+(ok?'Bu oyunu canlı akışta oynadığında bir sonraki adaya geçersin.':'Hedefe ulaşamadın. Canlı akışta bu adada kalırsın.')+'</p>'+stat+
+    '<div class="rbtns"><button class="btn bp" onclick="hide(\'resOv\');tryGame('+tryIdx+')">🔁 Tekrar dene</button>'+
+    '<button class="btn bg2" onclick="hide(\'resOv\')">Kapat</button></div></div>';
+  show("resOv");
+}
+function showFail(detay){
+  var isl=ISLANDS[curIsland()];
+  var stat=detay&&detay.olcut?'<div class="rstat">'+detay.olcut+': <b>'+detay.deger+(detay.birim||'')+'</b> · Hedef: '+isl.hedef+'</div>':'';
+  document.getElementById("resMd").innerHTML=
+    '<div class="result"><div class="rico">😕</div><h3>Bu sefer olmadı</h3>'+
+    '<p class="sub">Hedefe ulaşamadın, bu yüzden bir sonraki adaya geçemezsin.</p>'+stat+
+    '<p class="sub" style="margin-top:10px">Tekrar denemek ister misin, yoksa diğer görevlere mi göz atarsın?</p>'+
+    '<div class="rbtns"><button class="btn bp" onclick="replayGame()">🔁 Tekrar oyna</button>'+
+    '<button class="btn bgold" onclick="hide(\'resOv\');openTasks('+curIsland()+')">📋 Diğer görevlere göz at</button>'+
+    '<button class="btn bg2" onclick="hide(\'resOv\')">Kapat</button></div></div>';
+  show("resOv");
+}
+function passGate(yol, detay){
+  hide("gateOv");
+  var idx=curIsland(), isl=ISLANDS[idx], last=(idx===4);
+  if(typeof pendingPass==="function"){ pendingPass(); } // gerçek LmsUpdateUpLevel(6) → ada ilerler
+  pendingPass=null;
+  var stat=(detay&&detay.olcut)?'<div class="rstat">'+detay.olcut+': <b>'+detay.deger+(detay.birim||'')+'</b> ✓</div>':'<div class="rstat">Görevler tamamlandı ✓</div>';
+  document.getElementById("resMd").innerHTML=
+    '<div class="result"><div class="rico">'+(last?'🏆':'🎉')+'</div><h3>'+(last?'Yolculuğu tamamladın!':'Ada tamamlandı!')+'</h3>'+
+    '<p class="sub">'+isl.ada+' adası geçildi'+(yol==='oyun'?' (oyunla)':' (görevlerle)')+'.</p>'+stat+
+    '<p class="sub" style="margin-top:8px">'+(last?'Beş adanın hepsi bitti. 🎖️':'Sonraki ada (<b>'+ISLANDS[idx+1].ada+'</b>) açıldı.')+'</p>'+
+    '<div class="rbtns"><button class="btn bp" onclick="hide(\'resOv\')">Devam et →</button></div></div>';
+  show("resOv"); confetti();
+}
+
+/* ---- TEST ---- */
+function testNextTask(){
+  if(!window.exportRoot){ alert("Oyun henüz yüklenmedi"); return; }
+  var sub=(exportRoot.UpLevel%6)+1;     // sıradaki görevin alt-seviyesi (1..6)
+  exportRoot.LmsUpdateUpLevel(sub);     // 6 olunca kapı tetiklenir
+}
+function forceGate(){
+  if(!window.exportRoot){ alert("Oyun henüz yüklenmedi"); return; }
+  tryMode=false;
+  openGate(curIsland(), function(){ window.__bypass=true; exportRoot.LmsUpdateUpLevel(6); window.__bypass=false; refreshDev(); });
+}
+function resetDemo(){ location.reload(); }
+
+/* ---- yardımcı ---- */
+function show(id){ document.getElementById(id).classList.add("show"); }
+function hide(id){ document.getElementById(id).classList.remove("show"); }
+function confetti(){
+  var c=document.getElementById("confetti"); c.innerHTML="";
+  var cols=["#4f8cff","#ff6b9f","#36d399","#ffd34d","#7a5cff"];
+  for(var i=0;i<70;i++){ var s=document.createElement("i");
+    s.style.left=(Math.random()*100)+"%"; s.style.background=cols[i%5];
+    s.style.animationDuration=(2+Math.random()*2)+"s"; s.style.animationDelay=(Math.random()*.4)+"s";
+    c.appendChild(s); }
+  setTimeout(function(){c.innerHTML="";},4200);
+}
+
+window.addEventListener("load", init);
+</script>
+</body>
+</html>

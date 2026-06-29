@@ -1,0 +1,78 @@
+.video {
+    position: absolute;
+    z-index: 1000; /* Diğer içeriklerin önüne çıkar */
+}
+
+#videoMc {
+    position: absolute;
+    z-index: 1000; /* Diğer içeriklerin önüne çıkar */
+}
+
+#animation_container, #_preload_div_ {
+    position: absolute;
+    margin: auto;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+body {
+    display: flex;
+    justify-items: center;
+    width: 100vw;
+    background-color: #23bfef !important;
+}
+
+.modal-dialog .modal-content.custom-modal-style {
+    background-color: #ffefcc;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.modal-body {
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: 80vh; /* İhtiyaca göre ayarlayın */
+}
+
+.modalImage {
+    width: 70vw;
+}
+
+.custom-modal-style .modal-header {
+    background-color: #efd491; /* Açık kahverengi arka plan */
+    color: #8B4513; /* Koyu kahverengi başlık yazısı */
+    text-align: center; /* Başlığı ortala */
+    border-radius: 15px;
+}
+
+    .custom-modal-style .modal-header .close {
+        color: #8B4513; /* Kapat butonu rengini koyu kahverengi yap */
+    }
+
+#badgeNameTableExample thead th, #badgeNameTableExample tbody td {
+    border-color: #8B4513; /* Koyu kahverengi çizgi rengi */
+}
+
+/* Tablo çizgileri için */
+#example thead th, #example tbody tr td {
+    border: 1px solid #af7046; /* Koyu kahverengi çizgi rengi */
+}
+
+/* Çift satırlar için arka plan rengi */
+#example tbody tr:nth-child(even) {
+    background-color: #ffefcc;
+}
+
+/* Tek satırlar için arka plan rengi */
+#example tbody tr:nth-child(odd) {
+    background-color: #ede7da;
+}
+
+@media (min-width: 576px) {
+    .modal-dialog {
+        max-width: calc(70vw + 45px) !important;
+        margin: 1.75rem auto;
+    }
+}
