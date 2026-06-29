@@ -136,6 +136,15 @@ var MOCK = [
   { Login:0, Order:3, Name:"Mert D.",     Gender:1, Image:AV, Language:"tr", UpLevel:14, TotalPoint:14, Level:3, TaskNo:2, IslandName:"Cool Lime", BadgeNumber:2, BadgeName:"Hız:Dikkat", IsVideo:1, Date:"2026-06-29", Sales:{TotalSale:0} },
   { Login:0, Order:4, Name:"Elif S.",     Gender:2, Image:AV, Language:"tr", UpLevel:9,  TotalPoint:9,  Level:2, TaskNo:3, IslandName:"Smothie",   BadgeNumber:1, BadgeName:"Başlangıç", IsVideo:1, Date:"2026-06-29", Sales:{TotalSale:0} }
 ];
+// Kayıtlı ilerlemeyi uygula (kapı geçişlerinde avatar gerçekten taşınsın diye)
+try{
+  var _sv=localStorage.getItem('demoUp');
+  if(_sv!==null){
+    var _u=Math.max(0,Math.min(30,parseInt(_sv,10)||0));
+    MOCK[1].UpLevel=_u; MOCK[1].TotalPoint=_u; MOCK[1].Level=Math.floor(_u/6)+1; MOCK[1].TaskNo=_u%6;
+    MOCK[1].IslandName=["Milkshake","Smothie","Cool Lime","Narince","Obsesso"][Math.min(4,Math.floor(_u/6))];
+  }
+}catch(e){}
 // Animate JS bunu çağırır: GamerInformation = GetGameInformation();
 function GetGameInformation(){ return MOCK; }
 // Diğer view fonksiyonları — canvas çağırınca hata vermesin diye stub:
@@ -222,8 +231,11 @@ function refreshDev(){
   if(window.exportRoot){
     document.getElementById("upTxt").textContent=exportRoot.UpLevel;
     document.getElementById("islTxt").textContent=(curIsland()+1)+" ("+ISLANDS[curIsland()].ada+")";
+    try{ localStorage.setItem('demoUp', exportRoot.UpLevel); }catch(e){}
   }
 }
+// Kapı geçilince haritayı yeni adayla yeniden çiz (avatar görünür şekilde ilerlesin)
+function continueJourney(){ hide('resOv'); location.reload(); }
 
 /* ---- KAPI ekranı ---- */
 function openGate(idx, onPass){
@@ -328,8 +340,8 @@ function passGate(yol, detay){
   document.getElementById("resMd").innerHTML=
     '<div class="result"><div class="rico">'+(last?'🏆':'🎉')+'</div><h3>'+(last?'Yolculuğu tamamladın!':'Ada tamamlandı!')+'</h3>'+
     '<p class="sub">'+isl.ada+' adası geçildi'+(yol==='oyun'?' (oyunla)':' (görevlerle)')+'.</p>'+stat+
-    '<p class="sub" style="margin-top:8px">'+(last?'Beş adanın hepsi bitti. 🎖️':'Sonraki ada (<b>'+ISLANDS[idx+1].ada+'</b>) açıldı.')+'</p>'+
-    '<div class="rbtns"><button class="btn bp" onclick="hide(\'resOv\')">Devam et →</button></div></div>';
+    '<p class="sub" style="margin-top:8px">'+(last?'Beş adanın hepsi bitti. 🎖️':'Sonraki ada (<b>'+ISLANDS[idx+1].ada+'</b>) açıldı. Haritada oraya geçiyorsun…')+'</p>'+
+    '<div class="rbtns"><button class="btn bp" onclick="continueJourney()">'+(last?'Haritaya dön':'Sonraki adaya geç →')+'</button></div></div>';
   show("resOv"); confetti();
 }
 
@@ -344,7 +356,7 @@ function forceGate(){
   tryMode=false;
   openGate(curIsland(), function(){ window.__bypass=true; exportRoot.LmsUpdateUpLevel(6); window.__bypass=false; refreshDev(); });
 }
-function resetDemo(){ location.reload(); }
+function resetDemo(){ try{ localStorage.removeItem('demoUp'); }catch(e){} location.reload(); }
 
 /* ---- yardımcı ---- */
 function show(id){ document.getElementById(id).classList.add("show"); }
